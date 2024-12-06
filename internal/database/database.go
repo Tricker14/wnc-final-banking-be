@@ -38,7 +38,7 @@ func Open() *sqlx.DB {
 	db.SetMaxIdleConns(50)
 	db.SetMaxOpenConns(50)
 
-	p, err := filepath.Abs("F://Documents//Code//Golang//internet-banking")
+	p, err := filepath.Abs(".")
 	p = filepath.ToSlash(p)
 	p = path.Join(p, "migrations")
 

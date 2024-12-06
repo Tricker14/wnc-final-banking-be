@@ -20,14 +20,11 @@ import (
 // Injectors from wire.go:
 
 func InitializeContainer(db database.Db) *controller.ApiContainer {
-	studentRepository := repositoryimplement.NewStudentRepository(db)
-	studentService := serviceimplement.NewStudentService(studentRepository)
-	studentHandler := v1.NewStudentHandler(studentService)
 	customerRepository := repositoryimplement.NewCustomerRepository(db)
-	customerService := serviceimplement.NewCustomerService(customerRepository)
-	authHandler := v1.NewAuthHandler(customerService)
-	authMiddleware := middleware.NewAuthMiddleware(customerRepository)
-	server := http.NewServer(studentHandler, authHandler, authMiddleware)
+	authService := serviceimplement.NewAuthService(customerRepository)
+	authHandler := v1.NewAuthHandler(authService)
+	authMiddleware := middleware.NewAuthMiddleware(authService)
+	server := http.NewServer(authHandler, authMiddleware)
 	apiContainer := controller.NewApiContainer(server)
 	return apiContainer
 }
@@ -40,10 +37,10 @@ var container = wire.NewSet(controller.NewApiContainer)
 var serverSet = wire.NewSet(http.NewServer)
 
 // handler === controller | with service and repository layers to form 3 layers architecture
-var handlerSet = wire.NewSet(v1.NewStudentHandler, v1.NewAuthHandler)
+var handlerSet = wire.NewSet(v1.NewAuthHandler)
 
-var serviceSet = wire.NewSet(serviceimplement.NewStudentService, serviceimplement.NewCustomerService)
+var serviceSet = wire.NewSet(serviceimplement.NewAuthService)
 
-var repositorySet = wire.NewSet(repositoryimplement.NewStudentRepository, repositoryimplement.NewCustomerRepository)
+var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)

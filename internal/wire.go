@@ -25,17 +25,14 @@ var serverSet = wire.NewSet(
 
 // handler === controller | with service and repository layers to form 3 layers architecture
 var handlerSet = wire.NewSet(
-	v1.NewStudentHandler,
 	v1.NewAuthHandler,
 )
 
 var serviceSet = wire.NewSet(
-	serviceimplement.NewStudentService,
-	serviceimplement.NewCustomerService,
+	serviceimplement.NewAuthService,
 )
 
 var repositorySet = wire.NewSet(
-	repositoryimplement.NewStudentRepository,
 	repositoryimplement.NewCustomerRepository,
 )
 

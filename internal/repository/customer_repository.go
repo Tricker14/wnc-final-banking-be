@@ -8,11 +8,10 @@ import (
 )
 
 type CustomerRepository interface {
-	FindCustomerByUsername(ctx context.Context, username string) (*entity.Customer, error)
-	CreateCustomer(ctx context.Context, customer *entity.Customer) error
-
 	RegisterCommand(ctx context.Context, registerRequest model.RegisterRequest) error
-	LoginCommand(ctx context.Context, loginRequest model.LoginRequest) (entity.Customer, error)
-	UpdateRefreshToken(ctx context.Context, customerId int64, token string) error
-	ValidateRefreshToken(ctx context.Context, customerId int64, token string) bool
+	LoginCommand(ctx context.Context, loginRequest model.LoginRequest) (*entity.Customer, error)
+
+	CreateRefreshToken(ctx context.Context, refreshToken entity.RefreshToken) error
+	UpdateRefreshToken(ctx context.Context, refreshToken entity.RefreshToken) error
+	ValidateRefreshToken(ctx context.Context, customerId int64) (*entity.RefreshToken, error)
 }

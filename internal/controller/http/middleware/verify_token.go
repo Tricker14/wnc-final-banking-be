@@ -4,18 +4,21 @@ import (
 	"net/http"
 
 	httpcommon "github.com/VuKhoa23/advanced-web-be/internal/domain/http_common"
-	"github.com/VuKhoa23/advanced-web-be/internal/repository"
+	"github.com/VuKhoa23/advanced-web-be/internal/service"
+	"github.com/VuKhoa23/advanced-web-be/internal/utils/constants"
 	"github.com/VuKhoa23/advanced-web-be/internal/utils/env"
 	"github.com/VuKhoa23/advanced-web-be/internal/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthMiddleware struct {
-	customerRepository repository.CustomerRepository
+	authService service.AuthService
 }
 
-func NewAuthMiddleware(customerRepository repository.CustomerRepository) *AuthMiddleware {
-	return &AuthMiddleware{customerRepository: customerRepository}
+func NewAuthMiddleware(authService service.AuthService) *AuthMiddleware {
+	return &AuthMiddleware{
+		authService: authService,
+	}
 }
 
 func getAccessToken(c *gin.Context) (token string) {
@@ -40,6 +43,7 @@ func getRefreshToken(c *gin.Context) (token string) {
 }
 
 func (a *AuthMiddleware) VerifyToken(c *gin.Context) {
+	// Get the JWT secret from the environment
 	jwtSecret, err := env.GetEnv("JWT_SECRET")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
@@ -51,71 +55,95 @@ func (a *AuthMiddleware) VerifyToken(c *gin.Context) {
 		return
 	}
 
+	// Retrieve the access token from the header or cookies
 	accessToken := getAccessToken(c)
 	claims, err := jwt.VerifyToken(accessToken, jwtSecret)
-	if err != nil {
-		if err.Error() != httpcommon.ErrorMessage.TokenExpired {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
-				httpcommon.Error{
-					Message: httpcommon.ErrorMessage.BadCredential,
-					Code:    httpcommon.ErrorResponseCode.InvalidRequest,
-				},
-			))
-			return
-		} else {
-			// if access token expired, check refresh token
-			refreshToken := getRefreshToken(c)
-			refreshClaims, errRf := jwt.VerifyToken(refreshToken, jwtSecret)
-			if errRf != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
-					httpcommon.Error{
-						Message: httpcommon.ErrorMessage.BadCredential,
-						Code:    httpcommon.ErrorResponseCode.InvalidRequest,
-					},
-				))
-				return
-			}
-
-			payload, ok := refreshClaims.Payload.(map[string]interface{})
-			if !ok {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
-					httpcommon.Error{
-						Message: httpcommon.ErrorMessage.BadCredential,
-						Code:    httpcommon.ErrorResponseCode.InvalidRequest,
-					},
-				))
-				return
-			}
-
+	if err == nil {
+		// If the access token is valid, extract customer ID and proceed
+		if payload, ok := claims.Payload.(map[string]interface{}); ok {
 			customerId := int64(payload["id"].(float64))
-
-			isValid := a.customerRepository.ValidateRefreshToken(c, customerId, refreshToken)
-			if !isValid {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
-					httpcommon.Error{
-						Message: httpcommon.ErrorMessage.BadCredential,
-						Code:    httpcommon.ErrorResponseCode.InvalidRequest,
-					},
-				))
-				return
-			}
 			c.Set("customerId", customerId)
 			c.Next()
 			return
 		}
 	}
 
-	payload, ok := claims.Payload.(map[string]interface{})
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
-			httpcommon.Error{
-				Message: httpcommon.ErrorMessage.BadCredential,
-				Code:    httpcommon.ErrorResponseCode.InvalidRequest,
-			},
-		))
+	// If the access token is expired, check the refresh token
+	if err.Error() == httpcommon.ErrorMessage.TokenExpired {
+		refreshToken := getRefreshToken(c)
+		refreshClaims, errRf := jwt.VerifyToken(refreshToken, jwtSecret)
+		if errRf != nil {
+			// If the refresh token is invalid or expired, abort with unauthorized
+			c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
+				httpcommon.Error{
+					Message: httpcommon.ErrorMessage.BadCredential,
+					Code:    httpcommon.ErrorResponseCode.Unauthorized,
+				},
+			))
+			return
+		}
+
+		// Extract customer ID from refresh token claims
+		payload, ok := refreshClaims.Payload.(map[string]interface{})
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
+				httpcommon.Error{
+					Message: httpcommon.ErrorMessage.BadCredential,
+					Code:    httpcommon.ErrorResponseCode.Unauthorized,
+				},
+			))
+			return
+		}
+		customerId := int64(payload["id"].(float64))
+
+		// Check if the refresh token exists and is still valid in the database
+		refreshTokenEntity, err := a.authService.ValidateRefreshToken(c, customerId)
+		if err != nil || refreshTokenEntity == nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
+				httpcommon.Error{
+					Message: httpcommon.ErrorMessage.BadCredential,
+					Code:    httpcommon.ErrorResponseCode.Unauthorized,
+				},
+			))
+			return
+		}
+
+		// Generate a new access token
+		newAccessToken, err := jwt.GenerateToken(constants.ACCESS_TOKEN_DURATION, jwtSecret, map[string]interface{}{
+			"id": customerId,
+		})
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
+				httpcommon.Error{
+					Message: err.Error(),
+					Code:    httpcommon.ErrorResponseCode.InternalServerError,
+				},
+			))
+			return
+		}
+
+		// Set the new access token in cookies
+		c.SetCookie(
+			"access_token",
+			newAccessToken,
+			constants.COOKIE_DURATION,
+			"/",
+			"",
+			false,
+			true,
+		)
+
+		// Proceed with the customer ID set in the context
+		c.Set("customerId", customerId)
+		c.Next()
 		return
 	}
-	customerId := int64(payload["id"].(float64))
-	c.Set("customerId", customerId)
-	c.Next()
+
+	// For all other errors, abort with unauthorized
+	c.AbortWithStatusJSON(http.StatusUnauthorized, httpcommon.NewErrorResponse(
+		httpcommon.Error{
+			Message: httpcommon.ErrorMessage.BadCredential,
+			Code:    httpcommon.ErrorResponseCode.Unauthorized,
+		},
+	))
 }

@@ -13,11 +13,11 @@ import (
 )
 
 type AuthHandler struct {
-	customerService service.CustomerService
+	authService service.AuthService
 }
 
-func NewAuthHandler(customerService service.CustomerService) *AuthHandler {
-	return &AuthHandler{customerService: customerService}
+func NewAuthHandler(authService service.AuthService) *AuthHandler {
+	return &AuthHandler{authService: authService}
 }
 
 func (handler *AuthHandler) Register(ctx *gin.Context) {
@@ -27,7 +27,7 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 		return
 	}
 
-	err := handler.customerService.Register(ctx, registerRequest)
+	err := handler.authService.Register(ctx, registerRequest)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(httpcommon.Error{
 			Message: err.Error(), Field: "", Code: httpcommon.ErrorResponseCode.InternalServerError,
@@ -44,7 +44,7 @@ func (handler *AuthHandler) Login(ctx *gin.Context){
 		return
 	}
 
-	customer, err := handler.customerService.Login(ctx, loginRequest)
+	customer, err := handler.authService.Login(ctx, loginRequest)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
 			httpcommon.Error{
