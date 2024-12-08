@@ -21,7 +21,8 @@ import (
 
 func InitializeContainer(db database.Db) *controller.ApiContainer {
 	customerRepository := repositoryimplement.NewCustomerRepository(db)
-	authService := serviceimplement.NewAuthService(customerRepository)
+	authenticationRepository := repositoryimplement.NewAuthenticationRepository(db)
+	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository)
 	authHandler := v1.NewAuthHandler(authService)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 	server := http.NewServer(authHandler, authMiddleware)
@@ -41,6 +42,6 @@ var handlerSet = wire.NewSet(v1.NewAuthHandler)
 
 var serviceSet = wire.NewSet(serviceimplement.NewAuthService)
 
-var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository)
+var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository, repositoryimplement.NewAuthenticationRepository)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)

@@ -10,5 +10,5 @@ type AuthService interface {
 	Register(ctx *gin.Context, customerRequest model.RegisterRequest) error
 	Login(ctx *gin.Context, customerRequest model.LoginRequest) (*entity.Customer, error)
 
-	ValidateRefreshToken(ctx *gin.Context, customerId int64) (*entity.RefreshToken, error)
+	ValidateRefreshToken(ctx *gin.Context, customerId int64) (*entity.Authentication, error)
 }
