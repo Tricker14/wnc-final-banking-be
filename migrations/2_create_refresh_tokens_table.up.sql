@@ -1,7 +1,0 @@
-CREATE TABLE refresh_tokens (
-   id INT AUTO_INCREMENT PRIMARY KEY,
-   customer_id INT NOT NULL,
-   value VARCHAR(255) NOT NULL,
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-   CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
-);
