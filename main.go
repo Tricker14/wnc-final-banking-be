@@ -7,8 +7,12 @@ import (
 	"github.com/VuKhoa23/advanced-web-be/startup"
 )
 
+func hasCommand(args []string) bool {
+	return len(args) > 1
+}
+
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "migrate-up" {
+	if hasCommand(os.Args) && os.Args[1] == "migrate-up" {
 		startup.Migrate()
 		return
 	}
