@@ -6,8 +6,15 @@ import (
 	"github.com/VuKhoa23/advanced-web-be/internal/database"
 )
 
+func Migrate() {
+	// Open the database connection
+	db := database.Open()
+	
+	database.MigrateUp(db)
+}
+
 func registerDependencies() *controller.ApiContainer {
-	// Open database connection
+	// Open the database connection
 	db := database.Open()
 
 	return internal.InitializeContainer(db)

@@ -12,3 +12,13 @@ http://localhost:PORT/swagger/index.html
 ```bash
 $ make wire
 ```
+
+## Create migration files
+```bash
+$ make migration name=create_names_table
+```
+
+### Apply migration files
+```bash
+$ make migrate-up
+```

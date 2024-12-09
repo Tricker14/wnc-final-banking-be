@@ -4,9 +4,7 @@ wire:
 	wire ./internal
 
 MIGRATIONS_DIR=migrations
-
-DATETIME := $(shell date +%Y_%m_%d_%H%M%S)
-
+DATETIME := $(shell date +%Y%m%d%H%M%S)
 migration:
 	@if [ -z "$(name)" ]; then \
 		echo "Error: You must specify a migration name. Usage: make migration name=your_migration_name"; \
@@ -16,3 +14,8 @@ migration:
 	@touch $(MIGRATIONS_DIR)/$(DATETIME)_$(name).up.sql
 	@touch $(MIGRATIONS_DIR)/$(DATETIME)_$(name).down.sql
 	@echo "Created migration files: $(DATETIME)_$(name).up.sql and $(DATETIME)_$(name).down.sql"
+
+# Command to apply migrations (up)
+migrate-up:
+	@echo "Running migrations (up)..."
+	@go run main.go migrate
