@@ -34,6 +34,7 @@ var serviceSet = wire.NewSet(
 
 var repositorySet = wire.NewSet(
 	repositoryimplement.NewCustomerRepository,
+	repositoryimplement.NewAuthenticationRepository,
 )
 
 var middlewareSet = wire.NewSet(
