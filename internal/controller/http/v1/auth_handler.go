@@ -56,7 +56,7 @@ func (handler *AuthHandler) Login(ctx *gin.Context){
 	}
 
 	ctx.JSON(200, httpcommon.NewSuccessResponse[entity.Customer](&entity.Customer{
-		Username: customer.Username,
+		Email: customer.Email,
 	}))
 }
 
