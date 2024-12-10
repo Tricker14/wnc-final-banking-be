@@ -18,4 +18,4 @@ migration:
 # Command to apply migrations (up)
 migrate-up:
 	@echo "Running migrations (up)..."
-	@go run main.go migrate
+	@go run main.go migrate-up

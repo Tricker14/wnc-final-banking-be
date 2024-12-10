@@ -22,15 +22,10 @@ func NewAuthMiddleware(authService service.AuthService) *AuthMiddleware {
 }
 
 func getAccessToken(c *gin.Context) (token string) {
-	token = c.Request.Header.Get("Authorization")
-	if token == "" {
-		var err error
-		token, err = c.Cookie("access_token")
-		if err != nil {
-			return ""
-		}
+	token, err := c.Cookie("access_token")
+	if err != nil {
+		return ""
 	}
-
 	return token
 }
 
