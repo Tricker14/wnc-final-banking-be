@@ -4,13 +4,14 @@
 package internal
 
 import (
-	"github.com/VuKhoa23/advanced-web-be/internal/controller"
-	"github.com/VuKhoa23/advanced-web-be/internal/controller/http"
-	"github.com/VuKhoa23/advanced-web-be/internal/controller/http/middleware"
-	v1 "github.com/VuKhoa23/advanced-web-be/internal/controller/http/v1"
-	"github.com/VuKhoa23/advanced-web-be/internal/database"
-	repositoryimplement "github.com/VuKhoa23/advanced-web-be/internal/repository/implement"
-	serviceimplement "github.com/VuKhoa23/advanced-web-be/internal/service/implement"
+	beanimplement "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean/implement"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/middleware"
+	v1 "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/v1"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
+	repositoryimplement "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository/implement"
+	serviceimplement "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service/implement"
 	"github.com/google/wire"
 )
 
@@ -40,10 +41,13 @@ var repositorySet = wire.NewSet(
 var middlewareSet = wire.NewSet(
 	middleware.NewAuthMiddleware,
 )
+var beanSet = wire.NewSet(
+	beanimplement.NewBcryptPasswordEncoder,
+)
 
 func InitializeContainer(
 	db database.Db,
 ) *controller.ApiContainer {
-	wire.Build(serverSet, handlerSet, serviceSet, repositorySet, middlewareSet, container)
+	wire.Build(serverSet, handlerSet, serviceSet, repositorySet, middlewareSet, beanSet, container)
 	return &controller.ApiContainer{}
 }

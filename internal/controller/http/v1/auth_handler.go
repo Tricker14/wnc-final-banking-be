@@ -1,14 +1,13 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	httpcommon "github.com/VuKhoa23/advanced-web-be/internal/domain/http_common"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/model"
-	"github.com/VuKhoa23/advanced-web-be/internal/service"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/validation"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +36,7 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 	ctx.AbortWithStatus(204)
 }
 
-func (handler *AuthHandler) Login(ctx *gin.Context){
+func (handler *AuthHandler) Login(ctx *gin.Context) {
 	var loginRequest model.LoginRequest
 
 	if err := validation.BindJsonAndValidate(ctx, &loginRequest); err != nil {
@@ -58,8 +57,4 @@ func (handler *AuthHandler) Login(ctx *gin.Context){
 	ctx.JSON(200, httpcommon.NewSuccessResponse[entity.Customer](&entity.Customer{
 		Email: customer.Email,
 	}))
-}
-
-func (handler *AuthHandler) TestJWT(c *gin.Context) {
-	fmt.Println("test login")
 }

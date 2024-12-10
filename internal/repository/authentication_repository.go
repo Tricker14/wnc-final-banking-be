@@ -3,11 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
 )
 
 type AuthenticationRepository interface {
-	CreateRefreshToken(ctx context.Context, refreshToken entity.Authentication) error
-	UpdateRefreshToken(ctx context.Context, refreshToken entity.Authentication) error
-	ValidateRefreshToken(ctx context.Context, customerId int64) (*entity.Authentication, error)
+	CreateCommand(ctx context.Context, refreshToken entity.Authentication) error
+	UpdateCommand(ctx context.Context, refreshToken entity.Authentication) error
+	GetOneByCustomerIdQuery(ctx context.Context, customerId int64) (*entity.Authentication, error)
 }

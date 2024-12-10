@@ -2,11 +2,10 @@ package repositoryimplement
 
 import (
 	"context"
-	"time"
-
-	"github.com/VuKhoa23/advanced-web-be/internal/database"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	"github.com/VuKhoa23/advanced-web-be/internal/repository"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -18,7 +17,7 @@ func NewAuthenticationRepository(db database.Db) repository.AuthenticationReposi
 	return &AuthenticationRepository{db: db}
 }
 
-func (repo *AuthenticationRepository) CreateRefreshToken(ctx context.Context, authentication entity.Authentication) error {
+func (repo *AuthenticationRepository) CreateCommand(ctx context.Context, authentication entity.Authentication) error {
 	query := `
 		INSERT INTO authentications (customer_id, refresh_token)
 		VALUES (:customer_id, :refresh_token)
@@ -27,7 +26,7 @@ func (repo *AuthenticationRepository) CreateRefreshToken(ctx context.Context, au
 	return err
 }
 
-func (repo *AuthenticationRepository) UpdateRefreshToken(ctx context.Context, authentication entity.Authentication) error {
+func (repo *AuthenticationRepository) UpdateCommand(ctx context.Context, authentication entity.Authentication) error {
 	query := `
 		UPDATE authentications
 		SET refresh_token = :refresh_token
@@ -37,8 +36,8 @@ func (repo *AuthenticationRepository) UpdateRefreshToken(ctx context.Context, au
 	return err
 }
 
-// find refresh token and validate its expiration time
-func (repo *AuthenticationRepository) ValidateRefreshToken(ctx context.Context, customerId int64) (*entity.Authentication, error) {
+// find refresh token
+func (repo *AuthenticationRepository) GetOneByCustomerIdQuery(ctx context.Context, customerId int64) (*entity.Authentication, error) {
 	var authentication entity.Authentication
 	query := `
 		SELECT customer_id, refresh_token, created_at
@@ -47,12 +46,10 @@ func (repo *AuthenticationRepository) ValidateRefreshToken(ctx context.Context, 
 	`
 	err := repo.db.GetContext(ctx, &authentication, query, customerId)
 	if err != nil {
+		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
+			return nil, nil
+		}
 		return nil, err
-	}
-
-	// Check if the token has expired
-	if authentication.CreatedAt.Before(time.Now()) {
-		return nil, nil
 	}
 	return &authentication, nil
 }

@@ -1,6 +1,6 @@
 package controller
 
-import "github.com/VuKhoa23/advanced-web-be/internal/controller/http"
+import "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http"
 
 type ApiContainer struct {
 	HttpServer *http.Server
