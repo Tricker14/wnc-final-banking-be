@@ -1,7 +1,7 @@
-package passwordencoderimplement
+package beanimplement
 
 import (
-	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/bean"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean"
 	"golang.org/x/crypto/bcrypt"
 )
 

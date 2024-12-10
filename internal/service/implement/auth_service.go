@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository"
@@ -12,17 +13,16 @@ import (
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/env"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/google_recaptcha"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
-	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/password_encoder"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthService struct {
 	customerRepository       repository.CustomerRepository
 	authenticationRepository repository.AuthenticationRepository
-	passwordEncoder          password_encoder.PasswordEncoder
+	passwordEncoder          bean.PasswordEncoder
 }
 
-func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder password_encoder.PasswordEncoder) service.AuthService {
+func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder bean.PasswordEncoder) service.AuthService {
 	return &AuthService{
 		customerRepository:       customerRepository,
 		authenticationRepository: authenticationRepository,

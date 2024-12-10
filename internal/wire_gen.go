@@ -7,6 +7,7 @@
 package internal
 
 import (
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean/implement"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/middleware"
@@ -14,7 +15,6 @@ import (
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository/implement"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service/implement"
-	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/password_encoder/implement"
 	"github.com/google/wire"
 )
 
@@ -23,7 +23,7 @@ import (
 func InitializeContainer(db database.Db) *controller.ApiContainer {
 	customerRepository := repositoryimplement.NewCustomerRepository(db)
 	authenticationRepository := repositoryimplement.NewAuthenticationRepository(db)
-	passwordEncoder := passwordencoderimplement.NewBcryptPasswordEncoder()
+	passwordEncoder := beanimplement.NewBcryptPasswordEncoder()
 	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository, passwordEncoder)
 	authHandler := v1.NewAuthHandler(authService)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
@@ -48,4 +48,4 @@ var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository, repos
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
-var passwordEncoderSet = wire.NewSet(passwordencoderimplement.NewBcryptPasswordEncoder)
+var beanSet = wire.NewSet(beanimplement.NewBcryptPasswordEncoder)
