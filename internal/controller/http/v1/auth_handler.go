@@ -19,6 +19,16 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
+// @Summary Register
+// @Description Register to account
+// @Tags Auths
+// @Accept json
+// @Param request body model.RegisterRequest true "Auth payload"
+// @Produce  json
+// @Router /auth/register [post]
+// @Success 204 "No Content"
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AuthHandler) Register(ctx *gin.Context) {
 	var registerRequest model.RegisterRequest
 
@@ -36,6 +46,16 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 	ctx.AbortWithStatus(204)
 }
 
+// @Summary Login
+// @Description Login to account
+// @Tags Auths
+// @Accept json
+// @Param request body model.LoginRequest true "Auth payload"
+// @Produce  json
+// @Router /auth/login [post]
+// @Success 200 {object} httpcommon.HttpResponse[entity.Customer]
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AuthHandler) Login(ctx *gin.Context) {
 	var loginRequest model.LoginRequest
 
