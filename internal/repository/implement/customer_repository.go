@@ -2,12 +2,11 @@ package repositoryimplement
 
 import (
 	"context"
-	"database/sql"
-	"errors"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
 
-	"github.com/VuKhoa23/advanced-web-be/internal/database"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	"github.com/VuKhoa23/advanced-web-be/internal/repository"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -34,7 +33,7 @@ func (repo *CustomerRepository) GetOneByEmailQuery(ctx context.Context, email st
 	query := "SELECT * FROM customers WHERE email = ?"
 	err := repo.db.QueryRowxContext(ctx, query, email).StructScan(&customer)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
 			return nil, nil
 		}
 		return nil, err

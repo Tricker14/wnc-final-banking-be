@@ -1,14 +1,13 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	httpcommon "github.com/VuKhoa23/advanced-web-be/internal/domain/http_common"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/model"
-	"github.com/VuKhoa23/advanced-web-be/internal/service"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/validation"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,16 +19,6 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// @Summary Register
-// @Description Register to account
-// @Tags Auths
-// @Accept json
-// @Param request body model.RegisterRequest true "Auth payload"
-// @Produce  json
-// @Router /auth/register [post]
-// @Success 204 "No Content"
-// @Failure 400 {object} http_common.HttpResponse[any]
-// @Failure 500 {object} http_common.HttpResponse[any]
 func (handler *AuthHandler) Register(ctx *gin.Context) {
 	var registerRequest model.RegisterRequest
 
@@ -47,16 +36,6 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 	ctx.AbortWithStatus(204)
 }
 
-// @Summary Login
-// @Description Login to account
-// @Tags Users
-// @Accept json
-// @Param request body model.LoginRequest true "User payload"
-// @Produce  json
-// @Router /auth/login [post]
-// @Success 200 {object} httpcommon.HttpResponse[entity.Customer]
-// @Failure 400 {object} httpcommon.HttpResponse[any]
-// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AuthHandler) Login(ctx *gin.Context) {
 	var loginRequest model.LoginRequest
 
@@ -78,8 +57,4 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 	ctx.JSON(200, httpcommon.NewSuccessResponse[entity.Customer](&entity.Customer{
 		Email: customer.Email,
 	}))
-}
-
-func (handler *AuthHandler) TestJWT(c *gin.Context) {
-	fmt.Println("test login")
 }

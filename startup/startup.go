@@ -1,15 +1,15 @@
 package startup
 
 import (
-	"github.com/VuKhoa23/advanced-web-be/internal"
-	"github.com/VuKhoa23/advanced-web-be/internal/controller"
-	"github.com/VuKhoa23/advanced-web-be/internal/database"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
 )
 
 func Migrate() {
 	// Open the database connection
 	db := database.Open()
-	
+
 	database.MigrateUp(db)
 }
 

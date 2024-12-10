@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	httpcommon "github.com/VuKhoa23/advanced-web-be/internal/domain/http_common"
-	stringutils "github.com/VuKhoa23/advanced-web-be/internal/utils/string_utils"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
+	stringutils "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/string_utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )

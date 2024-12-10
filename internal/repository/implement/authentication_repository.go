@@ -2,10 +2,10 @@ package repositoryimplement
 
 import (
 	"context"
-	"database/sql"
-	"github.com/VuKhoa23/advanced-web-be/internal/database"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	"github.com/VuKhoa23/advanced-web-be/internal/repository"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -46,7 +46,7 @@ func (repo *AuthenticationRepository) GetOneByCustomerIdQuery(ctx context.Contex
 	`
 	err := repo.db.GetContext(ctx, &authentication, query, customerId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
 			return nil, nil
 		}
 		return nil, err

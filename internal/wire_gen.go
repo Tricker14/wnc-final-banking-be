@@ -7,13 +7,14 @@
 package internal
 
 import (
-	"github.com/VuKhoa23/advanced-web-be/internal/controller"
-	"github.com/VuKhoa23/advanced-web-be/internal/controller/http"
-	"github.com/VuKhoa23/advanced-web-be/internal/controller/http/middleware"
-	"github.com/VuKhoa23/advanced-web-be/internal/controller/http/v1"
-	"github.com/VuKhoa23/advanced-web-be/internal/database"
-	"github.com/VuKhoa23/advanced-web-be/internal/repository/implement"
-	"github.com/VuKhoa23/advanced-web-be/internal/service/implement"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/middleware"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/v1"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository/implement"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service/implement"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/password_encoder/implement"
 	"github.com/google/wire"
 )
 
@@ -22,7 +23,8 @@ import (
 func InitializeContainer(db database.Db) *controller.ApiContainer {
 	customerRepository := repositoryimplement.NewCustomerRepository(db)
 	authenticationRepository := repositoryimplement.NewAuthenticationRepository(db)
-	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository)
+	passwordEncoder := passwordencoderimplement.NewBcryptPasswordEncoder()
+	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository, passwordEncoder)
 	authHandler := v1.NewAuthHandler(authService)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 	server := http.NewServer(authHandler, authMiddleware)
@@ -45,3 +47,5 @@ var serviceSet = wire.NewSet(serviceimplement.NewAuthService)
 var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository, repositoryimplement.NewAuthenticationRepository)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
+
+var passwordEncoderSet = wire.NewSet(passwordencoderimplement.NewBcryptPasswordEncoder)

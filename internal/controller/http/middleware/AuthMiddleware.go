@@ -3,11 +3,11 @@ package middleware
 import (
 	"net/http"
 
-	httpcommon "github.com/VuKhoa23/advanced-web-be/internal/domain/http_common"
-	"github.com/VuKhoa23/advanced-web-be/internal/service"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/constants"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/env"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/jwt"
+	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/constants"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/env"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,4 +1,4 @@
-module github.com/VuKhoa23/advanced-web-be
+module github.com/21CLC01-WNC-Banking/WNC-Banking-BE
 
 go 1.23.1
 

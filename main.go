@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	_ "github.com/VuKhoa23/advanced-web-be/docs"
-	"github.com/VuKhoa23/advanced-web-be/startup"
+	_ "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/docs"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/startup"
 )
 
 func main() {

@@ -8,18 +8,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/VuKhoa23/advanced-web-be/internal/controller/http/middleware"
-	v1 "github.com/VuKhoa23/advanced-web-be/internal/controller/http/v1"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/middleware"
+	v1 "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/controller/http/v1"
 )
 
 type Server struct {
-	authHandler *v1.AuthHandler
+	authHandler    *v1.AuthHandler
 	authMiddleware *middleware.AuthMiddleware
 }
 
 func NewServer(authHandler *v1.AuthHandler, authMiddleware *middleware.AuthMiddleware) *Server {
 	return &Server{
-		authHandler: authHandler,
+		authHandler:    authHandler,
 		authMiddleware: authMiddleware,
 	}
 }

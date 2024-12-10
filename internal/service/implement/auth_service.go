@@ -4,28 +4,29 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
-
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/model"
-	"github.com/VuKhoa23/advanced-web-be/internal/repository"
-	"github.com/VuKhoa23/advanced-web-be/internal/service"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/constants"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/env"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/google_recaptcha"
-	"github.com/VuKhoa23/advanced-web-be/internal/utils/jwt"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/constants"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/env"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/google_recaptcha"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/password_encoder"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthService struct {
 	customerRepository       repository.CustomerRepository
 	authenticationRepository repository.AuthenticationRepository
+	passwordEncoder          password_encoder.PasswordEncoder
 }
 
-func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository) service.AuthService {
+func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder password_encoder.PasswordEncoder) service.AuthService {
 	return &AuthService{
 		customerRepository:       customerRepository,
 		authenticationRepository: authenticationRepository,
+		passwordEncoder:          encoder,
 	}
 }
 
@@ -37,7 +38,7 @@ func (service *AuthService) Register(ctx *gin.Context, registerRequest model.Reg
 	if existsCustomer != nil {
 		return errors.New("Email have already registered")
 	}
-	hashPW, err := bcrypt.GenerateFromPassword([]byte(registerRequest.Password), bcrypt.DefaultCost)
+	hashPW, err := service.passwordEncoder.Encrypt(registerRequest.Password)
 	if err != nil {
 		return err
 	}
@@ -67,9 +68,9 @@ func (service *AuthService) Login(ctx *gin.Context, loginRequest model.LoginRequ
 	if existsCustomer == nil {
 		return nil, errors.New("Email not found")
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(existsCustomer.Password), []byte(loginRequest.Password))
-	if err != nil {
-		return nil, err
+	checkPw := service.passwordEncoder.Compare(existsCustomer.Password, loginRequest.Password)
+	if checkPw == false {
+		return nil, errors.New("invalid password")
 	}
 
 	jwtSecret, err := env.GetEnv("JWT_SECRET")

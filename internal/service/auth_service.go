@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/entity"
-	"github.com/VuKhoa23/advanced-web-be/internal/domain/model"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
 	"github.com/gin-gonic/gin"
 )
 
