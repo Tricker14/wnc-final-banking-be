@@ -1,13 +1,13 @@
 package passwordencoderimplement
 
 import (
-	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/password_encoder"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/bean"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type BcryptPasswordEncoder struct{}
 
-func NewBcryptPasswordEncoder() password_encoder.PasswordEncoder {
+func NewBcryptPasswordEncoder() bean.PasswordEncoder {
 	return &BcryptPasswordEncoder{}
 }
 

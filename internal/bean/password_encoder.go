@@ -1,4 +1,4 @@
-package password_encoder
+package bean
 
 type PasswordEncoder interface {
 	Encrypt(password string) (string, error)
