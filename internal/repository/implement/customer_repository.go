@@ -42,17 +42,30 @@ func (repo *CustomerRepository) GetOneByEmailQuery(ctx context.Context, email st
 	return &customer, nil
 }
 
-func (repo *CustomerRepository) GetMailByIdQuery(ctx context.Context, id int64) (string, error) {
+func (repo *CustomerRepository) GetOneByIdQuery(ctx context.Context, id int64) (*entity.Customer, error) {
 	var customer entity.Customer
 	query := "SELECT * FROM customers WHERE id = ?"
 	err := repo.db.QueryRowxContext(ctx, query, id).StructScan(&customer)
 	if err != nil {
 		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
-			return "", nil
+			return nil, nil
 		}
-		return "", err
+		return nil, err
 	}
-	return customer.Email, nil
+	return &customer, nil
+}
+
+func (repo *CustomerRepository) GetIdByMailQuery(ctx context.Context, email string) (int64, error) {
+	var customer entity.Customer
+	query := "SELECT * FROM customers WHERE email = ?"
+	err := repo.db.QueryRowxContext(ctx, query, email).StructScan(&customer)
+	if err != nil {
+		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return customer.ID, nil
 }
 
 func (repo *CustomerRepository) UpdatePasswordByIdQuery(ctx context.Context, id int64, password string) error {

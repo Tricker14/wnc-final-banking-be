@@ -80,7 +80,13 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 }
 
 func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
-	err := handler.authService.SendOTPToMail(ctx)
+	var sendOTPRequest model.SendOTPRequest
+
+	if err := validation.BindJsonAndValidate(ctx, &sendOTPRequest); err != nil {
+		return
+	}
+
+	err := handler.authService.SendOTPToMail(ctx, sendOTPRequest)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
 			httpcommon.Error{

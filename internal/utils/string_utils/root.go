@@ -1,7 +1,6 @@
 package stringutils
 
 import (
-	"fmt"
 	"unicode"
 )
 
@@ -15,8 +14,4 @@ func FirstLetterToLower(s string) string {
 	r[0] = unicode.ToLower(r[0])
 
 	return string(r)
-}
-
-func Concat(baseKey string, number int64) string {
-	return fmt.Sprintf("%s:%d", baseKey, number)
 }

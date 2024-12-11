@@ -7,7 +7,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func MapRoutes(router *gin.Engine, authHandler *AuthHandler, authMiddleware *middleware.AuthMiddleware) {
+func MapRoutes(router *gin.Engine, authHandler *AuthHandler, coreHandler *CoreHandler, accountHandler *AccountHandler, authMiddleware *middleware.AuthMiddleware) {
 	router.Use(middleware.CorsMiddleware())
 	v1 := router.Group("/api/v1")
 	{
@@ -15,8 +15,16 @@ func MapRoutes(router *gin.Engine, authHandler *AuthHandler, authMiddleware *mid
 		{
 			customers.POST("/register", authHandler.Register)
 			customers.POST("/login", authHandler.Login)
-			customers.POST("/send-otp", authMiddleware.VerifyToken, authHandler.SendOTPToMail)
-			customers.POST("/reset-password", authMiddleware.VerifyToken, authHandler.ResetPassword)
+			customers.POST("/reset-password/otp", authHandler.SendOTPToMail)
+			customers.POST("/reset-password", authHandler.ResetPassword)
+		}
+		cores := v1.Group("/core")
+		{
+			cores.GET("/estimate-transfer-fee", coreHandler.EstimateTransferFee)
+		}
+		accounts := v1.Group("/account")
+		{
+			accounts.POST("/internal-transfer", authMiddleware.VerifyToken, accountHandler.InternalTransfer)
 		}
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

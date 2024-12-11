@@ -27,15 +27,20 @@ var serverSet = wire.NewSet(
 // handler === controller | with service and repository layers to form 3 layers architecture
 var handlerSet = wire.NewSet(
 	v1.NewAuthHandler,
+	v1.NewCoreHandler,
+	v1.NewAccountHandler,
 )
 
 var serviceSet = wire.NewSet(
 	serviceimplement.NewAuthService,
+	serviceimplement.NewAccountService,
+	serviceimplement.NewCoreService,
 )
 
 var repositorySet = wire.NewSet(
 	repositoryimplement.NewCustomerRepository,
 	repositoryimplement.NewAuthenticationRepository,
+	repositoryimplement.NewAccountRepository,
 )
 
 var middlewareSet = wire.NewSet(
@@ -44,6 +49,7 @@ var middlewareSet = wire.NewSet(
 var beanSet = wire.NewSet(
 	beanimplement.NewBcryptPasswordEncoder,
 	beanimplement.NewRedisService,
+	beanimplement.NewMailService,
 )
 
 func InitializeContainer(

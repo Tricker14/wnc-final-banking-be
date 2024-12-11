@@ -14,7 +14,7 @@ import (
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/google_recaptcha"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/mail"
-	stringutils "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/string_utils"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,19 +22,25 @@ type AuthService struct {
 	customerRepository       repository.CustomerRepository
 	authenticationRepository repository.AuthenticationRepository
 	passwordEncoder          bean.PasswordEncoder
+	accountService           service.AccountService
 	redisCLient 			 bean.RedisCLient
+	mailCLient				 bean.MailCLient
 }
 
 func NewAuthService(customerRepository repository.CustomerRepository, 
 	authenticationRepository repository.AuthenticationRepository, 
 	encoder bean.PasswordEncoder,
 	redisCLient bean.RedisCLient,
+	accountSer service.AccountService,
+	mailCLient	bean.MailCLient,
 	) service.AuthService {
 	return &AuthService{
 		customerRepository:       customerRepository,
 		authenticationRepository: authenticationRepository,
 		passwordEncoder:          encoder,
 		redisCLient:			  redisCLient,
+		accountService: 		accountSer,
+		mailCLient: 			mailCLient,
 	}
 }
 
@@ -56,6 +62,16 @@ func (service *AuthService) Register(ctx *gin.Context, registerRequest model.Reg
 		Password:    string(hashPW),
 	}
 	err = service.customerRepository.CreateCommand(ctx, newCustomer)
+	if err != nil {
+		return err
+	}
+
+	// auto create an account
+	currentCustomer, err := service.customerRepository.GetOneByEmailQuery(ctx, registerRequest.Email)
+	if err != nil {
+		return err
+	}
+	err = service.accountService.AddNewAccount(ctx, currentCustomer.ID)
 	if err != nil {
 		return err
 	}
@@ -156,25 +172,25 @@ func (service *AuthService) ValidateRefreshToken(ctx *gin.Context, customerId in
 	return refreshToken, nil
 }
 
-func (service *AuthService) SendOTPToMail(ctx *gin.Context) error {
+func (service *AuthService) SendOTPToMail(ctx *gin.Context, sendOTPRequest model.SendOTPRequest) error {
 	// generate otp
 	otp := mail.GenerateOTP(6)
 
-	// store otp in redis for 1 minute
-	customerId, _ := ctx.Get("customerId")
-	customerIdInt64, _ := customerId.(int64)
-	
-	baseKey := constants.REDIS_KEY
-	key := stringutils.Concat(baseKey, customerIdInt64)
+	// store otp in redis
+	customerId, err := service.customerRepository.GetIdByMailQuery(ctx, sendOTPRequest.Email)
+	if err != nil {
+		return err
+	}
+	baseKey := constants.RESET_PASSWORD_KEY
+	key := redis.Concat(baseKey, customerId)
 
-	err := service.redisCLient.Set(ctx, key, otp, constants.REDIS_EXP_TIME)
+	err = service.redisCLient.Set(ctx, key, otp)
 	if err != nil {
 		return err
 	}
 
 	// send otp to user email
-	customerMail, err := service.customerRepository.GetMailByIdQuery(ctx, customerIdInt64)
-	err = mail.SendEmail(customerMail, "test otp", otp)
+	err = service.mailCLient.SendEmail(ctx, sendOTPRequest.Email, "OTP reset password", otp)
 	if err != nil {
 		return err
 	}
@@ -183,26 +199,28 @@ func (service *AuthService) SendOTPToMail(ctx *gin.Context) error {
 }
 
 func (service *AuthService) ResetPassword(ctx *gin.Context, resetPasswordRequest model.ResetPasswordRequest) error {
-	customerId, _ := ctx.Get("customerId")
-	customerIdInt64, _ := customerId.(int64)
+	customerId, err := service.customerRepository.GetIdByMailQuery(ctx, resetPasswordRequest.Email)
+	if err != nil {
+		return err
+	}
 	
-	baseKey := constants.REDIS_KEY
-	key := stringutils.Concat(baseKey, customerIdInt64)
+	baseKey := constants.RESET_PASSWORD_KEY
+	key := redis.Concat(baseKey, customerId)
 	
 	val, err := service.redisCLient.Get(ctx, key)
 	if err != nil {
 		return err
 	}
 
-	service.redisCLient.Delete(ctx, key)
-
-	hashedPW, err := service.passwordEncoder.Encrypt(resetPasswordRequest.Password)
-	if err != nil {
-		return err
-	}
-
 	if(val == resetPasswordRequest.OTP){
-		err = service.customerRepository.UpdatePasswordByIdQuery(ctx, customerIdInt64, hashedPW)
+		service.redisCLient.Delete(ctx, key)
+
+		hashedPW, err := service.passwordEncoder.Encrypt(resetPasswordRequest.Password)
+		if err != nil {
+			return err
+		}
+
+		err = service.customerRepository.UpdatePasswordByIdQuery(ctx, customerId, hashedPW)
 			if err != nil {
 				return err
 			}

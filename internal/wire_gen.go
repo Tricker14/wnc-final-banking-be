@@ -25,10 +25,16 @@ func InitializeContainer(db database.Db) *controller.ApiContainer {
 	authenticationRepository := repositoryimplement.NewAuthenticationRepository(db)
 	passwordEncoder := beanimplement.NewBcryptPasswordEncoder()
 	redisCLient := beanimplement.NewRedisService()
-	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository, passwordEncoder, redisCLient)
+	accountRepository := repositoryimplement.NewAccountRepository(db)
+	coreService := serviceimplement.NewCoreService()
+	accountService := serviceimplement.NewAccountService(accountRepository, customerRepository, coreService)
+	mailCLient := beanimplement.NewMailService()
+	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository, passwordEncoder, redisCLient, accountService, mailCLient)
 	authHandler := v1.NewAuthHandler(authService)
+	coreHandler := v1.NewCoreHandler(coreService)
+	accountHandler := v1.NewAccountHandler(accountService)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
-	server := http.NewServer(authHandler, authMiddleware)
+	server := http.NewServer(authHandler, coreHandler, accountHandler, authMiddleware)
 	apiContainer := controller.NewApiContainer(server)
 	return apiContainer
 }
@@ -41,12 +47,12 @@ var container = wire.NewSet(controller.NewApiContainer)
 var serverSet = wire.NewSet(http.NewServer)
 
 // handler === controller | with service and repository layers to form 3 layers architecture
-var handlerSet = wire.NewSet(v1.NewAuthHandler)
+var handlerSet = wire.NewSet(v1.NewAuthHandler, v1.NewCoreHandler, v1.NewAccountHandler)
 
-var serviceSet = wire.NewSet(serviceimplement.NewAuthService)
+var serviceSet = wire.NewSet(serviceimplement.NewAuthService, serviceimplement.NewAccountService, serviceimplement.NewCoreService)
 
-var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository, repositoryimplement.NewAuthenticationRepository)
+var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository, repositoryimplement.NewAuthenticationRepository, repositoryimplement.NewAccountRepository)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
-var beanSet = wire.NewSet(beanimplement.NewBcryptPasswordEncoder, beanimplement.NewRedisService)
+var beanSet = wire.NewSet(beanimplement.NewBcryptPasswordEncoder, beanimplement.NewRedisService, beanimplement.NewMailService)
