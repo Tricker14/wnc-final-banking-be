@@ -1,6 +1,6 @@
 package model
 
-type InternalAccountRequest struct {
+type SearchInternalAccountRequest struct {
 	AccountNumber string `json:"accountNumber" binding:"required"`
 }
 

@@ -6,5 +6,6 @@ import (
 )
 
 type AccountService interface {
+	AddNewAccount(ctx *gin.Context, customerId int64) error
 	InternalTransfer(ctx *gin.Context, transferReq model.InternalTransferRequest) error
 }

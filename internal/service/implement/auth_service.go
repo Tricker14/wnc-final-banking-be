@@ -20,13 +20,15 @@ type AuthService struct {
 	customerRepository       repository.CustomerRepository
 	authenticationRepository repository.AuthenticationRepository
 	passwordEncoder          bean.PasswordEncoder
+	accountService           service.AccountService
 }
 
-func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder bean.PasswordEncoder) service.AuthService {
+func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder bean.PasswordEncoder, accountSer service.AccountService) service.AuthService {
 	return &AuthService{
 		customerRepository:       customerRepository,
 		authenticationRepository: authenticationRepository,
 		passwordEncoder:          encoder,
+		accountService:           accountSer,
 	}
 }
 
@@ -48,6 +50,16 @@ func (service *AuthService) Register(ctx *gin.Context, registerRequest model.Reg
 		Password:    string(hashPW),
 	}
 	err = service.customerRepository.CreateCommand(ctx, newCustomer)
+	if err != nil {
+		return err
+	}
+
+	// auto create an account
+	currentCustomer, err := service.customerRepository.GetOneByEmailQuery(ctx, registerRequest.Email)
+	if err != nil {
+		return err
+	}
+	err = service.accountService.AddNewAccount(ctx, currentCustomer.ID)
 	if err != nil {
 		return err
 	}

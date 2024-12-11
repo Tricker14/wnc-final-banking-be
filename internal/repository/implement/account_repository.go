@@ -19,6 +19,15 @@ func NewAccountRepository(db database.Db) repository.AccountRepository {
 	}
 }
 
+func (repo *AccountRepository) CreateCommand(ctx context.Context, account *entity.Account) error {
+	insertQuery := `INSERT INTO accounts(customer_id, number, balance) VALUES (:customer_id, :number, :balance)`
+	_, err := repo.db.NamedExecContext(ctx, insertQuery, account)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo *AccountRepository) UpdateCommand(ctx context.Context, account entity.Account) error {
 	query := `
 	UPDATE accounts

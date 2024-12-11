@@ -2,10 +2,13 @@ package serviceimplement
 
 import (
 	"errors"
+	"fmt"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/repository"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/service"
 	"github.com/gin-gonic/gin"
+	"math/rand"
 )
 
 type AccountService struct {
@@ -16,6 +19,38 @@ type AccountService struct {
 
 func NewAccountService(accountRepo repository.AccountRepository, customerRepo repository.CustomerRepository, coreService service.CoreService) service.AccountService {
 	return &AccountService{accountRepository: accountRepo, customerRepository: customerRepo, CoreService: coreService}
+}
+
+func (service *AccountService) GenerateAccountNumber(ctx *gin.Context) (string, error) {
+	for {
+		accountNumber := fmt.Sprintf("%012d", rand.Int63n(1000000000000)) // 12-digit number with leading zeros
+
+		// Check for unique
+		existsAccount, err := service.accountRepository.GetOneByNumberQuery(ctx, accountNumber)
+		if err != nil {
+			return "", err
+		}
+		if existsAccount == nil {
+			return accountNumber, nil
+		}
+	}
+}
+
+func (service *AccountService) AddNewAccount(ctx *gin.Context, customerId int64) error {
+
+	newNumber, err := service.GenerateAccountNumber(ctx)
+	if err != nil {
+		return err
+	}
+	err = service.accountRepository.CreateCommand(ctx, &entity.Account{
+		CustomerID: customerId,
+		Number:     newNumber,
+		Balance:    0,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (service *AccountService) InternalTransfer(ctx *gin.Context, transferReq model.InternalTransferRequest) error {
