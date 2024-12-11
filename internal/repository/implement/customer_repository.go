@@ -40,3 +40,16 @@ func (repo *CustomerRepository) GetOneByEmailQuery(ctx context.Context, email st
 	}
 	return &customer, nil
 }
+
+func (repo *CustomerRepository) GetOneByIdQuery(ctx context.Context, id int64) (*entity.Customer, error) {
+	var customer entity.Customer
+	query := "SELECT * FROM customers WHERE id = ?"
+	err := repo.db.QueryRowxContext(ctx, query, id).StructScan(&customer)
+	if err != nil {
+		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &customer, nil
+}
