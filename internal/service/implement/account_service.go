@@ -21,7 +21,7 @@ func NewAccountService(accountRepo repository.AccountRepository, customerRepo re
 	return &AccountService{accountRepository: accountRepo, customerRepository: customerRepo, CoreService: coreService}
 }
 
-func (service *AccountService) GenerateAccountNumber(ctx *gin.Context) (string, error) {
+func (service *AccountService) generateAccountNumber(ctx *gin.Context) (string, error) {
 	for {
 		accountNumber := fmt.Sprintf("%012d", rand.Int63n(1000000000000)) // 12-digit number with leading zeros
 
@@ -38,7 +38,7 @@ func (service *AccountService) GenerateAccountNumber(ctx *gin.Context) (string, 
 
 func (service *AccountService) AddNewAccount(ctx *gin.Context, customerId int64) error {
 
-	newNumber, err := service.GenerateAccountNumber(ctx)
+	newNumber, err := service.generateAccountNumber(ctx)
 	if err != nil {
 		return err
 	}
