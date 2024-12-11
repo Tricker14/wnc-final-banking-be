@@ -16,3 +16,8 @@ type AuthenticationRequest struct {
 	CustomerID   int64  `json:"customerId" binding:"required,min=1,max=255"`
 	RefreshToken string `json:"refreshToken" binding:"required"`
 }
+
+type ResetPasswordRequest struct {
+	OTP      string `json:"otp" binding:"required,min=6,max=6"`
+	Password string `json:"password" binding:"required,min=8,max=255"`
+}

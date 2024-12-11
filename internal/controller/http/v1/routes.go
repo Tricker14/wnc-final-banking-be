@@ -16,6 +16,7 @@ func MapRoutes(router *gin.Engine, authHandler *AuthHandler, authMiddleware *mid
 			customers.POST("/register", authHandler.Register)
 			customers.POST("/login", authHandler.Login)
 			customers.POST("/send-otp", authMiddleware.VerifyToken, authHandler.SendOTPToMail)
+			customers.POST("/reset-password", authMiddleware.VerifyToken, authHandler.ResetPassword)
 		}
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

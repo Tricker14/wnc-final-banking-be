@@ -3,7 +3,6 @@ package serviceimplement
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
@@ -15,6 +14,7 @@ import (
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/google_recaptcha"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/mail"
+	stringutils "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/string_utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -161,20 +161,53 @@ func (service *AuthService) SendOTPToMail(ctx *gin.Context) error {
 	otp := mail.GenerateOTP(6)
 
 	// store otp in redis for 1 minute
-	key := "otp"
-	err := service.redisCLient.Set(ctx, key, otp, 60)
+	customerId, _ := ctx.Get("customerId")
+	customerIdInt64, _ := customerId.(int64)
+	
+	baseKey := constants.REDIS_KEY
+	key := stringutils.Concat(baseKey, customerIdInt64)
+
+	err := service.redisCLient.Set(ctx, key, otp, constants.REDIS_EXP_TIME)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
 	// send otp to user email
-	customerId, _ := ctx.Get("customerId")
-	customerIdInt64, _ := customerId.(int64)
 	customerMail, err := service.customerRepository.GetMailByIdQuery(ctx, customerIdInt64)
 	err = mail.SendEmail(customerMail, "test otp", otp)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (service *AuthService) ResetPassword(ctx *gin.Context, resetPasswordRequest model.ResetPasswordRequest) error {
+	customerId, _ := ctx.Get("customerId")
+	customerIdInt64, _ := customerId.(int64)
+	
+	baseKey := constants.REDIS_KEY
+	key := stringutils.Concat(baseKey, customerIdInt64)
+	
+	val, err := service.redisCLient.Get(ctx, key)
+	if err != nil {
+		return err
+	}
+
+	service.redisCLient.Delete(ctx, key)
+
+	hashedPW, err := service.passwordEncoder.Encrypt(resetPasswordRequest.Password)
+	if err != nil {
+		return err
+	}
+
+	if(val == resetPasswordRequest.OTP){
+		err = service.customerRepository.UpdatePasswordByIdQuery(ctx, customerIdInt64, hashedPW)
+			if err != nil {
+				return err
+			}
+	} else {
+		return errors.New("Invalid OTP")
 	}
 
 	return nil

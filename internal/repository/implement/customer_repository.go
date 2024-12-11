@@ -54,3 +54,13 @@ func (repo *CustomerRepository) GetMailByIdQuery(ctx context.Context, id int64) 
 	}
 	return customer.Email, nil
 }
+
+func (repo *CustomerRepository) UpdatePasswordByIdQuery(ctx context.Context, id int64, password string) error {
+	query := "UPDATE customers SET password = ? WHERE id = ?"
+	_, err := repo.db.ExecContext(ctx, query, password, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

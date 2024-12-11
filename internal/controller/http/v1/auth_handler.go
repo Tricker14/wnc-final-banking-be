@@ -91,3 +91,22 @@ func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 		return
 	}
 }
+
+func (handler *AuthHandler) ResetPassword(ctx *gin.Context) {
+	var resetPasswordRequest model.ResetPasswordRequest
+
+	if err := validation.BindJsonAndValidate(ctx, &resetPasswordRequest); err != nil {
+		return
+	}
+
+	err := handler.authService.ResetPassword(ctx, resetPasswordRequest)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
+			httpcommon.Error{
+				Message: err.Error(),
+				Code:    httpcommon.ErrorResponseCode.InvalidRequest,
+			},
+		))
+		return
+	}
+}
