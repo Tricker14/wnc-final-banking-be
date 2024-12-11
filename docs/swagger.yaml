@@ -46,6 +46,34 @@ definitions:
       success:
         type: boolean
     type: object
+  httpcommon.HttpResponse-int64:
+    properties:
+      data:
+        type: integer
+      errors:
+        items:
+          $ref: '#/definitions/httpcommon.Error'
+        type: array
+      success:
+        type: boolean
+    type: object
+  model.InternalTransferRequest:
+    properties:
+      amount:
+        minimum: 0
+        type: integer
+      isSourceFee:
+        type: boolean
+      sourceAccountNumber:
+        type: string
+      targetAccountNumber:
+        type: string
+    required:
+    - amount
+    - isSourceFee
+    - sourceAccountNumber
+    - targetAccountNumber
+    type: object
   model.LoginRequest:
     properties:
       email:
@@ -85,6 +113,34 @@ definitions:
 info:
   contact: {}
 paths:
+  /account/internal-transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfer from internal account to internal account
+      parameters:
+      - description: Account payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.InternalTransferRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+      summary: Transfer
+      tags:
+      - Accounts
   /auth/login:
     post:
       consumes:
@@ -143,4 +199,33 @@ paths:
       summary: Register
       tags:
       - Auths
+  /core/estimate-transfer-fee:
+    get:
+      consumes:
+      - application/json
+      description: Estimate the internal transfer fee
+      parameters:
+      - description: Amount to estimate
+        in: query
+        name: amount
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-int64'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+      summary: EstimateTransferFee
+      tags:
+      - Cores
 swagger: "2.0"

@@ -87,5 +87,7 @@ func (service *AccountService) InternalTransfer(ctx *gin.Context, transferReq mo
 		return err
 	}
 
+	//Save to history, notify, response history
+
 	return nil
 }

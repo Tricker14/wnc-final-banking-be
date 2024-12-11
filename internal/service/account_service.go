@@ -6,5 +6,5 @@ import (
 )
 
 type AccountService interface {
-	InternalTransfer(ctx *gin.Context, tranferReq model.InternalTransferRequest) error
+	InternalTransfer(ctx *gin.Context, transferReq model.InternalTransferRequest) error
 }

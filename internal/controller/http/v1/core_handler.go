@@ -16,6 +16,16 @@ func NewCoreHandler(coreService service.CoreService) *CoreHandler {
 	return &CoreHandler{coreService: coreService}
 }
 
+// @Summary EstimateTransferFee
+// @Description Estimate the internal transfer fee
+// @Tags Cores
+// @Accept json
+// @Param amount query int64 true "Amount to estimate"
+// @Produce  json
+// @Router /core/estimate-transfer-fee [get]
+// @Success 200 {object} httpcommon.HttpResponse[int64]
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *CoreHandler) EstimateTransferFee(ctx *gin.Context) {
 	amount := ctx.Query("amount")
 	if amount == "" {

@@ -17,6 +17,16 @@ func NewAccountHandler(accountService service.AccountService) *AccountHandler {
 	return &AccountHandler{accountService: accountService}
 }
 
+// @Summary Transfer
+// @Description Transfer from internal account to internal account
+// @Tags Accounts
+// @Accept json
+// @Param request body model.InternalTransferRequest true "Account payload"
+// @Produce  json
+// @Router /account/internal-transfer [post]
+// @Success 204 "No Content"
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AccountHandler) InternalTransfer(ctx *gin.Context) {
 	var transfer model.InternalTransferRequest
 
