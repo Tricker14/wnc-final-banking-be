@@ -78,3 +78,16 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 		Email: customer.Email,
 	}))
 }
+
+func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
+	err := handler.authService.SendOTPToMail(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
+			httpcommon.Error{
+				Message: err.Error(),
+				Code:    httpcommon.ErrorResponseCode.InvalidRequest,
+			},
+		))
+		return
+	}
+}

@@ -43,6 +43,7 @@ var middlewareSet = wire.NewSet(
 )
 var beanSet = wire.NewSet(
 	beanimplement.NewBcryptPasswordEncoder,
+	beanimplement.NewRedisService,
 )
 
 func InitializeContainer(

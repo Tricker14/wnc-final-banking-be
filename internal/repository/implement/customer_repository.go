@@ -2,6 +2,7 @@ package repositoryimplement
 
 import (
 	"context"
+
 	httpcommon "github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/http_common"
 
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/database"
@@ -39,4 +40,17 @@ func (repo *CustomerRepository) GetOneByEmailQuery(ctx context.Context, email st
 		return nil, err
 	}
 	return &customer, nil
+}
+
+func (repo *CustomerRepository) GetMailByIdQuery(ctx context.Context, id int64) (string, error) {
+	var customer entity.Customer
+	query := "SELECT * FROM customers WHERE id = ?"
+	err := repo.db.QueryRowxContext(ctx, query, id).StructScan(&customer)
+	if err != nil {
+		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
+			return "", nil
+		}
+		return "", err
+	}
+	return customer.Email, nil
 }

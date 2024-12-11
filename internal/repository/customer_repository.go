@@ -9,4 +9,5 @@ import (
 type CustomerRepository interface {
 	CreateCommand(ctx context.Context, customer *entity.Customer) error
 	GetOneByEmailQuery(ctx context.Context, email string) (*entity.Customer, error)
+	GetMailByIdQuery(ctx context.Context, id int64) (string, error)
 }

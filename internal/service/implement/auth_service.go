@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
@@ -13,6 +14,7 @@ import (
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/env"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/google_recaptcha"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/mail"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,13 +22,19 @@ type AuthService struct {
 	customerRepository       repository.CustomerRepository
 	authenticationRepository repository.AuthenticationRepository
 	passwordEncoder          bean.PasswordEncoder
+	redisCLient 			 bean.RedisCLient
 }
 
-func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder bean.PasswordEncoder) service.AuthService {
+func NewAuthService(customerRepository repository.CustomerRepository, 
+	authenticationRepository repository.AuthenticationRepository, 
+	encoder bean.PasswordEncoder,
+	redisCLient bean.RedisCLient,
+	) service.AuthService {
 	return &AuthService{
 		customerRepository:       customerRepository,
 		authenticationRepository: authenticationRepository,
 		passwordEncoder:          encoder,
+		redisCLient:			  redisCLient,
 	}
 }
 
@@ -58,7 +66,7 @@ func (service *AuthService) Login(ctx *gin.Context, loginRequest model.LoginRequ
 	// validate captcha
 	isValid, err := google_recaptcha.ValidateRecaptcha(ctx, loginRequest.RecaptchaToken)
 	if err != nil || !isValid {
-		return &entity.Customer{}, fmt.Errorf("invalid reCAPTCHA token")
+		return nil, err
 	}
 
 	existsCustomer, err := service.customerRepository.GetOneByEmailQuery(ctx, loginRequest.Email)
@@ -146,4 +154,28 @@ func (service *AuthService) ValidateRefreshToken(ctx *gin.Context, customerId in
 		return nil, err
 	}
 	return refreshToken, nil
+}
+
+func (service *AuthService) SendOTPToMail(ctx *gin.Context) error {
+	// generate otp
+	otp := mail.GenerateOTP(6)
+
+	// store otp in redis for 1 minute
+	key := "otp"
+	err := service.redisCLient.Set(ctx, key, otp, 60)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	// send otp to user email
+	customerId, _ := ctx.Get("customerId")
+	customerIdInt64, _ := customerId.(int64)
+	customerMail, err := service.customerRepository.GetMailByIdQuery(ctx, customerIdInt64)
+	err = mail.SendEmail(customerMail, "test otp", otp)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
