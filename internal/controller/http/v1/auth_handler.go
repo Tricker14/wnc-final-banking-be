@@ -79,6 +79,16 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 	}))
 }
 
+// @Summary Send OTP to Mail
+// @Description Send OTP to user email
+// @Tags Auths
+// @Accept json
+// @Param request body model.SendOTPRequest true "Send OTP payload"
+// @Produce json
+// @Router /auth/reset-password/otp [post]
+// @Success 204 "No Content"
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 	var sendOTPRequest model.SendOTPRequest
 
@@ -98,6 +108,16 @@ func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 	}
 }
 
+// @Summary Reset Password
+// @Description Resets user password base on their email
+// @Tags Auths
+// @Accept json
+// @Param request body model.ResetPasswordRequest true "Reset Password payload"
+// @Produce json
+// @Router /auth/reset-password [post]
+// @Success 204 "No Content"
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AuthHandler) ResetPassword(ctx *gin.Context) {
 	var resetPasswordRequest model.ResetPasswordRequest
 

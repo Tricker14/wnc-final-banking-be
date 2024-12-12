@@ -55,7 +55,7 @@ func (repo *CustomerRepository) GetOneByIdQuery(ctx context.Context, id int64) (
 	return &customer, nil
 }
 
-func (repo *CustomerRepository) GetIdByMailQuery(ctx context.Context, email string) (int64, error) {
+func (repo *CustomerRepository) GetIdByEmailQuery(ctx context.Context, email string) (int64, error) {
 	var customer entity.Customer
 	query := "SELECT * FROM customers WHERE email = ?"
 	err := repo.db.QueryRowxContext(ctx, query, email).StructScan(&customer)

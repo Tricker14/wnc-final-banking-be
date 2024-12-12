@@ -9,15 +9,16 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-type MailService struct {
+type MailCLient struct {
 	host     string
 	port     int
 	username string
 	password string
 	from     string
+	dialer	 *gomail.Dialer
 }
 
-func NewMailService() bean.MailCLient {
+func NewMailClient() bean.MailCLient {
 	host, _ := env.GetEnv("MAIL_HOST")
 	portStr, _ := env.GetEnv("MAIL_PORT")
 	port, _ := strconv.Atoi(portStr)
@@ -25,22 +26,24 @@ func NewMailService() bean.MailCLient {
 	password, _ := env.GetEnv("MAIL_PASSWORD")
 	from, _ := env.GetEnv("MAIL_FROM")
 
-	return &MailService{
+	dialer := gomail.NewDialer(host, port, username, password)
+
+	return &MailCLient{
 		host:     host,
 		port:     port,
 		username: username,
 		password: password,
 		from:     from,
+		dialer:   dialer,
 	}
 }
 
-func (m *MailService) SendEmail(ctx context.Context, to string, subject string, body string) error {
+func (m *MailCLient) SendEmail(ctx context.Context, to string, subject string, body string) error {
 	message := gomail.NewMessage()
     message.SetHeader("From", m.from)
     message.SetHeader("To", to)
     message.SetHeader("Subject", subject)
     message.SetBody("text/html", body)
 
-    dialer := gomail.NewDialer(m.host, m.port, m.username, m.password)
-    return dialer.DialAndSend(message)
+    return m.dialer.DialAndSend(message)
 }

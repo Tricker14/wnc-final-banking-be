@@ -177,7 +177,7 @@ func (service *AuthService) SendOTPToMail(ctx *gin.Context, sendOTPRequest model
 	otp := mail.GenerateOTP(6)
 
 	// store otp in redis
-	customerId, err := service.customerRepository.GetIdByMailQuery(ctx, sendOTPRequest.Email)
+	customerId, err := service.customerRepository.GetIdByEmailQuery(ctx, sendOTPRequest.Email)
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func (service *AuthService) SendOTPToMail(ctx *gin.Context, sendOTPRequest model
 }
 
 func (service *AuthService) ResetPassword(ctx *gin.Context, resetPasswordRequest model.ResetPasswordRequest) error {
-	customerId, err := service.customerRepository.GetIdByMailQuery(ctx, resetPasswordRequest.Email)
+	customerId, err := service.customerRepository.GetIdByEmailQuery(ctx, resetPasswordRequest.Email)
 	if err != nil {
 		return err
 	}
