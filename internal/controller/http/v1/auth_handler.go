@@ -96,7 +96,7 @@ func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 		return
 	}
 
-	err := handler.authService.SendOTPToMail(ctx, sendOTPRequest)
+	err := handler.authService.SendOTPToEmail(ctx, sendOTPRequest)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
 			httpcommon.Error{

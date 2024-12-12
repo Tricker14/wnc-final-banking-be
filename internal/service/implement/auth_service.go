@@ -172,7 +172,7 @@ func (service *AuthService) ValidateRefreshToken(ctx *gin.Context, customerId in
 	return refreshToken, nil
 }
 
-func (service *AuthService) SendOTPToMail(ctx *gin.Context, sendOTPRequest model.SendOTPRequest) error {
+func (service *AuthService) SendOTPToEmail(ctx *gin.Context, sendOTPRequest model.SendOTPRequest) error {
 	// generate otp
 	otp := mail.GenerateOTP(6)
 

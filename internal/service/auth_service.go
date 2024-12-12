@@ -11,6 +11,6 @@ type AuthService interface {
 	Login(ctx *gin.Context, customerRequest model.LoginRequest) (*entity.Customer, error)
 	ValidateRefreshToken(ctx *gin.Context, customerId int64) (*entity.Authentication, error)
 
-	SendOTPToMail(ctx *gin.Context, sendOTPRequest model.SendOTPRequest) error
+	SendOTPToEmail(ctx *gin.Context, sendOTPRequest model.SendOTPRequest) error
 	ResetPassword(ctx *gin.Context, resetPasswordRequest model.ResetPasswordRequest) error
 }
