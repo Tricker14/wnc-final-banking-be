@@ -10,10 +10,6 @@ import (
 )
 
 type MailCLient struct {
-	host     string
-	port     int
-	username string
-	password string
 	from     string
 	dialer	 *gomail.Dialer
 }
@@ -29,10 +25,6 @@ func NewMailClient() bean.MailCLient {
 	dialer := gomail.NewDialer(host, port, username, password)
 
 	return &MailCLient{
-		host:     host,
-		port:     port,
-		username: username,
-		password: password,
 		from:     from,
 		dialer:   dialer,
 	}
