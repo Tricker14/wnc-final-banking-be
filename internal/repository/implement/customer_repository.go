@@ -21,7 +21,7 @@ func NewCustomerRepository(db database.Db) repository.CustomerRepository {
 
 func (repo *CustomerRepository) CreateCommand(ctx context.Context, customer *entity.Customer) error {
 	// Insert the new customer
-	insertQuery := `INSERT INTO customers(email, phone_number, password) VALUES (:email, :phone_number, :password)`
+	insertQuery := `INSERT INTO customers(email, name, phone_number, password) VALUES (:email, :name, :phone_number, :password)`
 	_, err := repo.db.NamedExecContext(ctx, insertQuery, customer)
 	if err != nil {
 		return err
