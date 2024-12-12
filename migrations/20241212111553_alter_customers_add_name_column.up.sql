@@ -1,0 +1,2 @@
+ALTER TABLE customers
+ADD COLUMN name VARCHAR(255) AFTER `email`;
