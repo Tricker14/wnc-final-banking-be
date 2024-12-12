@@ -1,6 +1,8 @@
 package stringutils
 
-import "unicode"
+import (
+	"unicode"
+)
 
 func FirstLetterToLower(s string) string {
 

@@ -24,10 +24,12 @@ func InitializeContainer(db database.Db) *controller.ApiContainer {
 	customerRepository := repositoryimplement.NewCustomerRepository(db)
 	authenticationRepository := repositoryimplement.NewAuthenticationRepository(db)
 	passwordEncoder := beanimplement.NewBcryptPasswordEncoder()
+	redisCLient := beanimplement.NewRedisService()
 	accountRepository := repositoryimplement.NewAccountRepository(db)
 	coreService := serviceimplement.NewCoreService()
 	accountService := serviceimplement.NewAccountService(accountRepository, customerRepository, coreService)
-	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository, passwordEncoder, accountService)
+	mailCLient := beanimplement.NewMailClient()
+	authService := serviceimplement.NewAuthService(customerRepository, authenticationRepository, passwordEncoder, redisCLient, accountService, mailCLient)
 	authHandler := v1.NewAuthHandler(authService)
 	coreHandler := v1.NewCoreHandler(coreService)
 	accountHandler := v1.NewAccountHandler(accountService)
@@ -53,4 +55,4 @@ var repositorySet = wire.NewSet(repositoryimplement.NewCustomerRepository, repos
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
-var beanSet = wire.NewSet(beanimplement.NewBcryptPasswordEncoder)
+var beanSet = wire.NewSet(beanimplement.NewBcryptPasswordEncoder, beanimplement.NewRedisService, beanimplement.NewMailClient)

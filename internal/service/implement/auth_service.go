@@ -3,7 +3,7 @@ package serviceimplement
 import (
 	"database/sql"
 	"errors"
-	"fmt"
+
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/bean"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/entity"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/domain/model"
@@ -13,6 +13,8 @@ import (
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/env"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/google_recaptcha"
 	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/jwt"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/mail"
+	"github.com/21CLC01-WNC-Banking/WNC-Banking-BE/internal/utils/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,14 +23,24 @@ type AuthService struct {
 	authenticationRepository repository.AuthenticationRepository
 	passwordEncoder          bean.PasswordEncoder
 	accountService           service.AccountService
+	redisCLient 			 bean.RedisCLient
+	mailCLient				 bean.MailCLient
 }
 
-func NewAuthService(customerRepository repository.CustomerRepository, authenticationRepository repository.AuthenticationRepository, encoder bean.PasswordEncoder, accountSer service.AccountService) service.AuthService {
+func NewAuthService(customerRepository repository.CustomerRepository, 
+	authenticationRepository repository.AuthenticationRepository, 
+	encoder bean.PasswordEncoder,
+	redisCLient bean.RedisCLient,
+	accountSer service.AccountService,
+	mailCLient	bean.MailCLient,
+	) service.AuthService {
 	return &AuthService{
 		customerRepository:       customerRepository,
 		authenticationRepository: authenticationRepository,
 		passwordEncoder:          encoder,
-		accountService:           accountSer,
+		redisCLient:			  redisCLient,
+		accountService: 		accountSer,
+		mailCLient: 			mailCLient,
 	}
 }
 
@@ -70,7 +82,7 @@ func (service *AuthService) Login(ctx *gin.Context, loginRequest model.LoginRequ
 	// validate captcha
 	isValid, err := google_recaptcha.ValidateRecaptcha(ctx, loginRequest.RecaptchaToken)
 	if err != nil || !isValid {
-		return &entity.Customer{}, fmt.Errorf("invalid reCAPTCHA token")
+		return nil, err
 	}
 
 	existsCustomer, err := service.customerRepository.GetOneByEmailQuery(ctx, loginRequest.Email)
@@ -158,4 +170,63 @@ func (service *AuthService) ValidateRefreshToken(ctx *gin.Context, customerId in
 		return nil, err
 	}
 	return refreshToken, nil
+}
+
+func (service *AuthService) SendOTPToEmail(ctx *gin.Context, sendOTPRequest model.SendOTPRequest) error {
+	// generate otp
+	otp := mail.GenerateOTP(6)
+
+	// store otp in redis
+	customerId, err := service.customerRepository.GetIdByEmailQuery(ctx, sendOTPRequest.Email)
+	if err != nil {
+		return err
+	}
+	baseKey := constants.RESET_PASSWORD_KEY
+	key := redis.Concat(baseKey, customerId)
+
+	err = service.redisCLient.Set(ctx, key, otp)
+	if err != nil {
+		return err
+	}
+
+	// send otp to user email
+	err = service.mailCLient.SendEmail(ctx, sendOTPRequest.Email, "OTP reset password", otp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *AuthService) ResetPassword(ctx *gin.Context, resetPasswordRequest model.ResetPasswordRequest) error {
+	customerId, err := service.customerRepository.GetIdByEmailQuery(ctx, resetPasswordRequest.Email)
+	if err != nil {
+		return err
+	}
+	
+	baseKey := constants.RESET_PASSWORD_KEY
+	key := redis.Concat(baseKey, customerId)
+	
+	val, err := service.redisCLient.Get(ctx, key)
+	if err != nil {
+		return err
+	}
+
+	if(val == resetPasswordRequest.OTP){
+		service.redisCLient.Delete(ctx, key)
+
+		hashedPW, err := service.passwordEncoder.Encrypt(resetPasswordRequest.Password)
+		if err != nil {
+			return err
+		}
+
+		err = service.customerRepository.UpdatePasswordByIdQuery(ctx, customerId, hashedPW)
+			if err != nil {
+				return err
+			}
+	} else {
+		return errors.New("Invalid OTP")
+	}
+
+	return nil
 }
