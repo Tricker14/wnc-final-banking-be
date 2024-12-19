@@ -15,8 +15,9 @@ func MapRoutes(router *gin.Engine, authHandler *AuthHandler, coreHandler *CoreHa
 		{
 			customers.POST("/register", authHandler.Register)
 			customers.POST("/login", authHandler.Login)
-			customers.POST("/reset-password/otp", authHandler.SendOTPToMail)
-			customers.POST("/reset-password", authHandler.ResetPassword)
+			customers.POST("/forgot-password/otp", authHandler.SendOTPToMail)
+			customers.POST("/forgot-password/verify-otp", authHandler.VerifyOTP)
+			customers.POST("/forgot-password", authHandler.SetPassword)
 		}
 		cores := v1.Group("/core")
 		{
