@@ -1,7 +1,10 @@
 package bean
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
-type MailCLient interface {
-	SendEmail(ctx context.Context, to, subject, body string) error
+type MailClient interface {
+	SendEmail(ctx context.Context, to, subject, code, context string, ttl time.Duration) error
 }

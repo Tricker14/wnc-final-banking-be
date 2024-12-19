@@ -12,7 +12,7 @@ type RedisService struct {
 	client *redis.Client
 }
 
-func NewRedisService() bean.RedisCLient {
+func NewRedisService() bean.RedisClient {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
@@ -30,7 +30,7 @@ func (r *RedisService) Get(ctx context.Context, key string) (string, error) {
 	value, err := r.client.Get(ctx, key).Result()
 	if err != nil {
 		return "", err
-	}	
+	}
 	return value, nil
 }
 

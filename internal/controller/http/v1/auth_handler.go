@@ -118,14 +118,33 @@ func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 // @Success 204 "No Content"
 // @Failure 400 {object} httpcommon.HttpResponse[any]
 // @Failure 500 {object} httpcommon.HttpResponse[any]
-func (handler *AuthHandler) ResetPassword(ctx *gin.Context) {
-	var resetPasswordRequest model.ResetPasswordRequest
+func (handler *AuthHandler) VerifyOTP(ctx *gin.Context) {
+	var verifyOTPRequest model.VerifyOTPRequest
 
-	if err := validation.BindJsonAndValidate(ctx, &resetPasswordRequest); err != nil {
+	if err := validation.BindJsonAndValidate(ctx, &verifyOTPRequest); err != nil {
 		return
 	}
 
-	err := handler.authService.ResetPassword(ctx, resetPasswordRequest)
+	err := handler.authService.VerifyOTP(ctx, verifyOTPRequest)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
+			httpcommon.Error{
+				Message: err.Error(),
+				Code:    httpcommon.ErrorResponseCode.InvalidRequest,
+			},
+		))
+		return
+	}
+}
+
+func (handler *AuthHandler) SetPassword(ctx *gin.Context) {
+	var setPasswordRequest model.SetPasswordRequest
+
+	if err := validation.BindJsonAndValidate(ctx, &setPasswordRequest); err != nil {
+		return
+	}
+
+	err := handler.authService.SetPassword(ctx, setPasswordRequest)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, httpcommon.NewErrorResponse(
 			httpcommon.Error{
