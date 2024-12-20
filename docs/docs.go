@@ -93,6 +93,92 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/forgot-password": {
+            "post": {
+                "description": "Set a new password after OTP verification",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auths"
+                ],
+                "summary": "Set Password",
+                "parameters": [
+                    {
+                        "description": "Set Password payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password/otp": {
+            "post": {
+                "description": "Send OTP to user email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auths"
+                ],
+                "summary": "Send OTP to Mail",
+                "parameters": [
+                    {
+                        "description": "Send OTP payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SendOTPRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/forgot-password/verify-otp": {
             "post": {
                 "description": "Verify OTP with email and otp",
@@ -203,49 +289,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.RegisterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/reset-password/otp": {
-            "post": {
-                "description": "Send OTP to user email",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auths"
-                ],
-                "summary": "Send OTP to Mail",
-                "parameters": [
-                    {
-                        "description": "Send OTP payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.SendOTPRequest"
                         }
                     }
                 ],
@@ -519,6 +562,31 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 10
+                }
+            }
+        },
+        "model.SetPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "otp",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 10
+                },
+                "otp": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 8
                 }
             }
         },

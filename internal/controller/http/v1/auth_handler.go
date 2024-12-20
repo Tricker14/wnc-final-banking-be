@@ -85,7 +85,7 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 // @Accept json
 // @Param request body model.SendOTPRequest true "Send OTP payload"
 // @Produce json
-// @Router /auth/reset-password/otp [post]
+// @Router /auth/forgot-password/otp [post]
 // @Success 204 "No Content"
 // @Failure 400 {object} httpcommon.HttpResponse[any]
 // @Failure 500 {object} httpcommon.HttpResponse[any]
@@ -106,6 +106,8 @@ func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 		))
 		return
 	}
+
+	ctx.AbortWithStatus(204)
 }
 
 // @Summary Verify OTP
@@ -135,8 +137,20 @@ func (handler *AuthHandler) VerifyOTP(ctx *gin.Context) {
 		))
 		return
 	}
+
+	ctx.AbortWithStatus(204)
 }
 
+// @Summary Set Password
+// @Description Set a new password after OTP verification
+// @Tags Auths
+// @Accept json
+// @Param request body model.SetPasswordRequest true "Set Password payload"
+// @Produce json
+// @Router /auth/forgot-password [post]
+// @Success 204 "No Content"
+// @Failure 400 {object} httpcommon.HttpResponse[any]
+// @Failure 500 {object} httpcommon.HttpResponse[any]
 func (handler *AuthHandler) SetPassword(ctx *gin.Context) {
 	var setPasswordRequest model.SetPasswordRequest
 
@@ -154,4 +168,6 @@ func (handler *AuthHandler) SetPassword(ctx *gin.Context) {
 		))
 		return
 	}
+
+	ctx.AbortWithStatus(204)
 }
