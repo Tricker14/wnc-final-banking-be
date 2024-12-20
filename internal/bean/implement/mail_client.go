@@ -35,20 +35,21 @@ func NewMailClient() bean.MailClient {
 func (m *MailClient) SendEmail(ctx context.Context, to string, subject string, code string, context string, ttl time.Duration) error {
 	message := gomail.NewMessage()
 
-	contextMessage := fmt.Sprintf("Enter the following code to %s:", context)
+	contextMessage := fmt.Sprintf("Nhập lại mã sau để %s:", context)
 
 	body := fmt.Sprintf(`
 		<!DOCTYPE html>
 		<html>
 		<body>
-			<p>You have selected <strong>%s</strong> as your email address.</p>
+			<p>Bạn đã chọn <strong>%s</strong> làm địa chỉ email của mình.</p>
 			<p>%s</p>
 			<h2 style="color: #4CAF50;">%s</h2>
-			<p>This code will expire %d minute after this email was sent.</p>
+			<p>Mã này sẽ hết hạn sau %d phút kể từ khi email này được gửi.</p>
 			<hr>
-			<p><strong>Why you received this email.</strong></p>
-			<p>We require verification whenever an email address is updated.</p>
-			<p>If you did not make this request, you can ignore this email.</p>
+			<p style="color: red;"><strong>Cảnh báo: Không bao giờ chia sẻ mã OTP của bạn với bất kỳ ai.</strong></p>
+			<p><strong>Tại sao bạn nhận được email này?</strong></p>
+			<p>Chúng tôi yêu cầu xác minh bất cứ khi nào mật khẩu được cập nhật hoặc giao dịch được thực hiện.</p>
+			<p>Nếu bạn không thực hiện yêu cầu này, bạn có thể bỏ qua email này.</p>
 		</body>
 		</html>`, to, contextMessage, code, ttl/time.Minute)
 

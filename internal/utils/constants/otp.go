@@ -1,3 +1,3 @@
 package constants
 
-const FORGOT_PASSWORD = "reset your password"
+const FORGOT_PASSWORD = "đặt lại mật khẩu"
