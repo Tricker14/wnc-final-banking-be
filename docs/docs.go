@@ -15,6 +15,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/account/customer-name": {
+            "get": {
+                "description": "Get Customer Name by Account Number",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Get Customer Name by Account Number",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account payload",
+                        "name": "accountNumber",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-model_GetCustomerNameByAccountNumberResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    }
+                }
+            }
+        },
         "/account/internal-transfer": {
             "post": {
                 "description": "Transfer from internal account to internal account",
@@ -36,6 +71,49 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.InternalTransferRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password/verify-otp": {
+            "post": {
+                "description": "Verify OTP with email and otp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auths"
+                ],
+                "summary": "Verify OTP",
+                "parameters": [
+                    {
+                        "description": "Verify OTP payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.VerifyOTPRequest"
                         }
                     }
                 ],
@@ -125,49 +203,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.RegisterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httpcommon.HttpResponse-any"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/reset-password": {
-            "post": {
-                "description": "Resets user password base on their email",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auths"
-                ],
-                "summary": "Reset Password",
-                "parameters": [
-                    {
-                        "description": "Reset Password payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.ResetPasswordRequest"
                         }
                     }
                 ],
@@ -285,7 +320,7 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "deleteddAt": {
+                "deletedAt": {
                     "type": "string"
                 },
                 "email": {
@@ -293,6 +328,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "password": {
                     "type": "string"
@@ -368,6 +406,31 @@ const docTemplate = `{
                 }
             }
         },
+        "httpcommon.HttpResponse-model_GetCustomerNameByAccountNumberResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.GetCustomerNameByAccountNumberResponse"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/httpcommon.Error"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.GetCustomerNameByAccountNumberResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.InternalTransferRequest": {
             "type": "object",
             "required": [
@@ -419,6 +482,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "name",
                 "password",
                 "phoneNumber"
             ],
@@ -427,6 +491,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 10
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 5
                 },
                 "password": {
                     "type": "string",
@@ -440,12 +509,24 @@ const docTemplate = `{
                 }
             }
         },
-        "model.ResetPasswordRequest": {
+        "model.SendOTPRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 10
+                }
+            }
+        },
+        "model.VerifyOTPRequest": {
             "type": "object",
             "required": [
                 "email",
-                "otp",
-                "password"
+                "otp"
             ],
             "properties": {
                 "email": {
@@ -457,24 +538,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 6,
                     "minLength": 6
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 8
-                }
-            }
-        },
-        "model.SendOTPRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 10
                 }
             }
         }

@@ -12,4 +12,5 @@ type CustomerRepository interface {
 	GetIdByEmailQuery(ctx context.Context, email string) (int64, error)
 	UpdatePasswordByIdQuery(ctx context.Context, id int64, password string) error
 	GetOneByIdQuery(ctx context.Context, id int64) (*entity.Customer, error)
+	GetCustomerByNumberQuery(ctx context.Context, number string) (*entity.Customer, error)
 }

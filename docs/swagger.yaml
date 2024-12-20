@@ -3,12 +3,14 @@ definitions:
     properties:
       createdAt:
         type: string
-      deleteddAt:
+      deletedAt:
         type: string
       email:
         type: string
       id:
         type: integer
+      name:
+        type: string
       password:
         type: string
       phoneNumber:
@@ -57,6 +59,22 @@ definitions:
       success:
         type: boolean
     type: object
+  httpcommon.HttpResponse-model_GetCustomerNameByAccountNumberResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.GetCustomerNameByAccountNumberResponse'
+      errors:
+        items:
+          $ref: '#/definitions/httpcommon.Error'
+        type: array
+      success:
+        type: boolean
+    type: object
+  model.GetCustomerNameByAccountNumberResponse:
+    properties:
+      name:
+        type: string
+    type: object
   model.InternalTransferRequest:
     properties:
       amount:
@@ -97,6 +115,10 @@ definitions:
         maxLength: 255
         minLength: 10
         type: string
+      name:
+        maxLength: 255
+        minLength: 5
+        type: string
       password:
         maxLength: 255
         minLength: 8
@@ -107,27 +129,9 @@ definitions:
         type: string
     required:
     - email
+    - name
     - password
     - phoneNumber
-    type: object
-  model.ResetPasswordRequest:
-    properties:
-      email:
-        maxLength: 255
-        minLength: 10
-        type: string
-      otp:
-        maxLength: 6
-        minLength: 6
-        type: string
-      password:
-        maxLength: 255
-        minLength: 8
-        type: string
-    required:
-    - email
-    - otp
-    - password
     type: object
   model.SendOTPRequest:
     properties:
@@ -138,9 +142,46 @@ definitions:
     required:
     - email
     type: object
+  model.VerifyOTPRequest:
+    properties:
+      email:
+        maxLength: 255
+        minLength: 10
+        type: string
+      otp:
+        maxLength: 6
+        minLength: 6
+        type: string
+    required:
+    - email
+    - otp
+    type: object
 info:
   contact: {}
 paths:
+  /account/customer-name:
+    get:
+      description: Get Customer Name by Account Number
+      parameters:
+      - description: Account payload
+        in: query
+        name: accountNumber
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-model_GetCustomerNameByAccountNumberResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+      summary: Get Customer Name by Account Number
+      tags:
+      - Accounts
   /account/internal-transfer:
     post:
       consumes:
@@ -169,6 +210,34 @@ paths:
       summary: Transfer
       tags:
       - Accounts
+  /auth/forgot-password/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP with email and otp
+      parameters:
+      - description: Verify OTP payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpcommon.HttpResponse-any'
+      summary: Verify OTP
+      tags:
+      - Auths
   /auth/login:
     post:
       consumes:
@@ -225,34 +294,6 @@ paths:
           schema:
             $ref: '#/definitions/httpcommon.HttpResponse-any'
       summary: Register
-      tags:
-      - Auths
-  /auth/reset-password:
-    post:
-      consumes:
-      - application/json
-      description: Resets user password base on their email
-      parameters:
-      - description: Reset Password payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.ResetPasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httpcommon.HttpResponse-any'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httpcommon.HttpResponse-any'
-      summary: Reset Password
       tags:
       - Auths
   /auth/reset-password/otp:
