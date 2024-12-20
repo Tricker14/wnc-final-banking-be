@@ -134,7 +134,7 @@ func (service *AuthService) Login(ctx *gin.Context, loginRequest model.LoginRequ
 	if existingRefreshToken == nil {
 		// Create a new refresh token
 		err = service.authenticationRepository.CreateCommand(ctx, entity.Authentication{
-			CustomerID:   existsCustomer.ID,
+			UserId:       existsCustomer.ID,
 			RefreshToken: refreshToken,
 		})
 		if err != nil {
@@ -143,7 +143,7 @@ func (service *AuthService) Login(ctx *gin.Context, loginRequest model.LoginRequ
 	} else {
 		// Update the existing refresh token
 		err = service.authenticationRepository.UpdateCommand(ctx, entity.Authentication{
-			CustomerID:   existsCustomer.ID,
+			UserId:       existsCustomer.ID,
 			RefreshToken: refreshToken,
 		})
 		if err != nil {

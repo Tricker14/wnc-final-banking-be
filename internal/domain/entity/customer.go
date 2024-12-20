@@ -6,6 +6,7 @@ type Customer struct {
 	ID          int64      `db:"id" json:"id"`
 	Email       string     `db:"email" json:"email"`
 	Name        string     `db:"name" json:"name"`
+	RoleId      int64      `db:"role_id" json:"role_id"`
 	PhoneNumber string     `db:"phone_number" json:"phoneNumber"`
 	Password    string     `db:"password" json:"password"`
 	CreatedAt   *time.Time `db:"created_at" json:"createdAt"`
