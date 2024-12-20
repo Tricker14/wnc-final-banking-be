@@ -78,11 +78,11 @@ func (repo *CustomerRepository) UpdatePasswordByIdQuery(ctx context.Context, id 
 	return nil
 }
 
-func (repo *CustomerRepository) GetCustomerByNumberQuery(ctx context.Context, number string) (*entity.Customer, error) {
+func (repo *CustomerRepository) GetCustomerByAccountNumberQuery(ctx context.Context, number string) (*entity.Customer, error) {
 	var customer entity.Customer
 	query := `
 				SELECT users.* FROM users 
-				JOIN accounts ON customers.id = accounts.customer_id AND accounts.number = ?
+				JOIN accounts ON users.id = accounts.customer_id AND accounts.number = ?
 			 `
 	err := repo.db.QueryRowxContext(ctx, query, number).StructScan(&customer)
 	if err != nil {
