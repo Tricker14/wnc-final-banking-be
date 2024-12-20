@@ -108,13 +108,13 @@ func (handler *AuthHandler) SendOTPToMail(ctx *gin.Context) {
 	}
 }
 
-// @Summary Reset Password
-// @Description Resets user password base on their email
+// @Summary Verify OTP
+// @Description Verify OTP with email and otp
 // @Tags Auths
 // @Accept json
-// @Param request body model.ResetPasswordRequest true "Reset Password payload"
+// @Param request body model.VerifyOTPRequest true "Verify OTP payload"
 // @Produce json
-// @Router /auth/reset-password [post]
+// @Router /auth/forgot-password/verify-otp [post]
 // @Success 204 "No Content"
 // @Failure 400 {object} httpcommon.HttpResponse[any]
 // @Failure 500 {object} httpcommon.HttpResponse[any]

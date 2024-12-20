@@ -77,3 +77,16 @@ func (repo *CustomerRepository) UpdatePasswordByIdQuery(ctx context.Context, id 
 
 	return nil
 }
+
+func (repo *CustomerRepository) GetCustomerByNumberQuery(ctx context.Context, number string) (*entity.Customer, error) {
+	var customer entity.Customer
+	query := `
+				SELECT customers.* FROM customers 
+				JOIN accounts ON customers.id = accounts.customer_id AND accounts.number = ?
+			 `
+	err := repo.db.QueryRowxContext(ctx, query, number).StructScan(&customer)
+	if err != nil {
+		return nil, err
+	}
+	return &customer, nil
+}
