@@ -21,7 +21,7 @@ func NewCustomerRepository(db database.Db) repository.CustomerRepository {
 
 func (repo *CustomerRepository) CreateCommand(ctx context.Context, customer *entity.Customer) error {
 	// Insert the new customer
-	insertQuery := `INSERT INTO customers(email, name, phone_number, password) VALUES (:email, :name, :phone_number, :password)`
+	insertQuery := `INSERT INTO users(email, name, phone_number, password) VALUES (:email, :name, :phone_number, :password)`
 	_, err := repo.db.NamedExecContext(ctx, insertQuery, customer)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (repo *CustomerRepository) CreateCommand(ctx context.Context, customer *ent
 
 func (repo *CustomerRepository) GetOneByEmailQuery(ctx context.Context, email string) (*entity.Customer, error) {
 	var customer entity.Customer
-	query := "SELECT * FROM customers WHERE email = ?"
+	query := "SELECT * FROM users WHERE email = ?"
 	err := repo.db.QueryRowxContext(ctx, query, email).StructScan(&customer)
 	if err != nil {
 		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
@@ -44,7 +44,7 @@ func (repo *CustomerRepository) GetOneByEmailQuery(ctx context.Context, email st
 
 func (repo *CustomerRepository) GetOneByIdQuery(ctx context.Context, id int64) (*entity.Customer, error) {
 	var customer entity.Customer
-	query := "SELECT * FROM customers WHERE id = ?"
+	query := "SELECT * FROM users WHERE id = ?"
 	err := repo.db.QueryRowxContext(ctx, query, id).StructScan(&customer)
 	if err != nil {
 		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
@@ -57,7 +57,7 @@ func (repo *CustomerRepository) GetOneByIdQuery(ctx context.Context, id int64) (
 
 func (repo *CustomerRepository) GetIdByEmailQuery(ctx context.Context, email string) (int64, error) {
 	var customer entity.Customer
-	query := "SELECT * FROM customers WHERE email = ?"
+	query := "SELECT * FROM users WHERE email = ?"
 	err := repo.db.QueryRowxContext(ctx, query, email).StructScan(&customer)
 	if err != nil {
 		if err.Error() == httpcommon.ErrorMessage.SqlxNoRow {
@@ -69,7 +69,7 @@ func (repo *CustomerRepository) GetIdByEmailQuery(ctx context.Context, email str
 }
 
 func (repo *CustomerRepository) UpdatePasswordByIdQuery(ctx context.Context, id int64, password string) error {
-	query := "UPDATE customers SET password = ? WHERE id = ?"
+	query := "UPDATE users SET password = ? WHERE id = ?"
 	_, err := repo.db.ExecContext(ctx, query, password, id)
 	if err != nil {
 		return err
@@ -78,11 +78,11 @@ func (repo *CustomerRepository) UpdatePasswordByIdQuery(ctx context.Context, id 
 	return nil
 }
 
-func (repo *CustomerRepository) GetCustomerByNumberQuery(ctx context.Context, number string) (*entity.Customer, error) {
+func (repo *CustomerRepository) GetCustomerByAccountNumberQuery(ctx context.Context, number string) (*entity.Customer, error) {
 	var customer entity.Customer
 	query := `
-				SELECT customers.* FROM customers 
-				JOIN accounts ON customers.id = accounts.customer_id AND accounts.number = ?
+				SELECT users.* FROM users 
+				JOIN accounts ON users.id = accounts.customer_id AND accounts.number = ?
 			 `
 	err := repo.db.QueryRowxContext(ctx, query, number).StructScan(&customer)
 	if err != nil {

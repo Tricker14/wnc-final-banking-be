@@ -128,7 +128,7 @@ func (service *AccountService) InternalTransfer(ctx *gin.Context, transferReq mo
 }
 
 func (service *AccountService) GetCustomerByAccountNumber(ctx *gin.Context, accountNumber string) (*entity.Customer, error) {
-	customer, err := service.customerRepository.GetCustomerByNumberQuery(ctx, accountNumber)
+	customer, err := service.customerRepository.GetCustomerByAccountNumberQuery(ctx, accountNumber)
 	if err != nil {
 		return nil, err
 	}

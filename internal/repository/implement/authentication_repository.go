@@ -19,8 +19,8 @@ func NewAuthenticationRepository(db database.Db) repository.AuthenticationReposi
 
 func (repo *AuthenticationRepository) CreateCommand(ctx context.Context, authentication entity.Authentication) error {
 	query := `
-		INSERT INTO authentications (customer_id, refresh_token)
-		VALUES (:customer_id, :refresh_token)
+		INSERT INTO authentications (user_id, refresh_token)
+		VALUES (:user_id, :refresh_token)
 	`
 	_, err := repo.db.NamedExecContext(ctx, query, authentication)
 	return err
@@ -30,7 +30,7 @@ func (repo *AuthenticationRepository) UpdateCommand(ctx context.Context, authent
 	query := `
 		UPDATE authentications
 		SET refresh_token = :refresh_token
-		WHERE customer_id = :customer_id
+		WHERE user_id = :user_id
 	`
 	_, err := repo.db.NamedExecContext(ctx, query, authentication)
 	return err
@@ -40,9 +40,9 @@ func (repo *AuthenticationRepository) UpdateCommand(ctx context.Context, authent
 func (repo *AuthenticationRepository) GetOneByCustomerIdQuery(ctx context.Context, customerId int64) (*entity.Authentication, error) {
 	var authentication entity.Authentication
 	query := `
-		SELECT customer_id, refresh_token, created_at
+		SELECT user_id, refresh_token, created_at
 		FROM authentications
-		WHERE customer_id = ?
+		WHERE user_id = ?
 	`
 	err := repo.db.GetContext(ctx, &authentication, query, customerId)
 	if err != nil {
